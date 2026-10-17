@@ -1,9 +1,14 @@
 name: apm-shared
-version: "0.1.0"
+version: "0.2.0"
 description: Shared agent configuration reused across imk1t repositories.
 license: MIT
 includes:
   - .apm/skills/**
 dependencies:
   apm: []
-  mcp: []
+  mcp:
+    - name: context7
+      registry: false
+      transport: stdio
+      command: npx
+      args: ["-y", "@upstash/context7-mcp@4.4.1"]

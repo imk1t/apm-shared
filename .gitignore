@@ -2,3 +2,6 @@
 .agents/
 apm_modules/
 apm.lock.yaml
+.claude/
+.mcp.json
+.codex/
