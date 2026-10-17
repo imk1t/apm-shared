@@ -19,3 +19,7 @@ dependencies:
 ```
 
 更新はこのリポジトリで変更してtagを打ち、利用側で参照tagを上げてlockを更新する。リポジトリ固有の規約は各リポジトリの `AGENTS.md` 等に書き、Skillはそれを優先して読む。
+
+## リリース
+
+PRで `.apm/` か `apm.yml` を変えたら、`apm.yml` の `version` を上げる（CIが既存tagとの重複を拒否する）。mainへのマージで `.github/workflows/release.yml` が `v<version>` のtagとGitHub Releaseを作る。
