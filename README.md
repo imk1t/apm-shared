@@ -7,6 +7,7 @@
 | Skill | 用途 |
 |---|---|
 | `create-pr` | コミット済みの変更からPRを作成する（`/create-pr [base]` で明示起動） |
+| `code-docs` | 関数・型・定数・moduleのドキュメントコメントを書く・直す（`/code-docs [対象]`、exportの追加・変更時に自動でも使われる） |
 
 ## MCPサーバー
 
@@ -23,7 +24,7 @@
 ```yaml
 dependencies:
   apm:
-    - imk1t/apm-shared#v0.1.1
+    - imk1t/apm-shared#v0.1.2
 ```
 
 更新はこのリポジトリで変更してtagを打ち、利用側で参照tagを上げてlockを更新する。リポジトリ固有の規約は各リポジトリの `AGENTS.md` 等に書き、Skillはそれを優先して読む。

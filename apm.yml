@@ -1,5 +1,5 @@
 name: apm-shared
-version: "0.1.1"
+version: "0.1.2"
 description: Shared agent configuration reused across imk1t repositories.
 license: MIT
 includes:
