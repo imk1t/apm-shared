@@ -23,7 +23,7 @@
 ```yaml
 dependencies:
   apm:
-    - imk1t/apm-shared#v0.2.0
+    - imk1t/apm-shared#v0.1.1
 ```
 
 更新はこのリポジトリで変更してtagを打ち、利用側で参照tagを上げてlockを更新する。リポジトリ固有の規約は各リポジトリの `AGENTS.md` 等に書き、Skillはそれを優先して読む。
