@@ -1,0 +1,9 @@
+name: apm-shared
+version: "0.1.0"
+description: Shared agent configuration reused across imk1t repositories.
+license: MIT
+includes:
+  - .apm/skills/**
+dependencies:
+  apm: []
+  mcp: []
