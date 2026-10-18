@@ -1,0 +1,46 @@
+name: apm-shared-verification
+version: "0.1.0"
+enforcement: block
+fetch_failure: block
+dependencies:
+  require_pinned_constraint: true
+mcp:
+  allow:
+    - context7
+  transport:
+    allow:
+      - stdio
+  self_defined: allow
+  trust_transitive: false
+compilation:
+  target:
+    allow:
+      - agent-skills
+      - claude
+      - codex
+manifest:
+  required_fields:
+    - name
+    - version
+    - description
+    - license
+    - includes
+    - targets
+    - dependencies
+  scripts: deny
+  content_types:
+    allow:
+      - skill
+  require_explicit_includes: true
+unmanaged_files:
+  action: deny
+  directories:
+    - .agents/skills
+    - .claude/skills
+security:
+  integrity:
+    require_hashes: true
+  audit:
+    fail_on_drift: true
+executables:
+  deny_all: true

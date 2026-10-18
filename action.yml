@@ -1,0 +1,39 @@
+name: Verify APM agent configuration
+description: Check pinned APM, skill output, policy and lockfile integrity.
+inputs:
+  working-directory:
+    description: Consumer project directory, relative to the workspace.
+    default: .
+  apm-version:
+    description: Exact APM CLI version required by the consumer.
+    default: 0.33.0
+  targets:
+    description: Comma-separated targets (agent-skills, claude, codex).
+    default: agent-skills,claude,codex
+  policy:
+    description: Local policy path, relative to the consumer project.
+    default: apm-policy.yml
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      with:
+        python-version: '3.12'
+    - name: Install pinned APM CLI
+      shell: bash
+      env:
+        APM_VERSION: ${{ inputs.apm-version }}
+      run: python -m pip install --disable-pip-version-check "apm-cli==$APM_VERSION"
+    - name: Verify consumer configuration
+      shell: bash
+      env:
+        VERIFY_PROJECT: ${{ inputs.working-directory }}
+        VERIFY_APM_VERSION: ${{ inputs.apm-version }}
+        VERIFY_TARGETS: ${{ inputs.targets }}
+        VERIFY_POLICY: ${{ inputs.policy }}
+      run: >-
+        python "$GITHUB_ACTION_PATH/scripts/verify_apm.py"
+        --project "$VERIFY_PROJECT"
+        --apm-version "$VERIFY_APM_VERSION"
+        --targets "$VERIFY_TARGETS"
+        --policy "$VERIFY_POLICY"

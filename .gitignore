@@ -5,3 +5,4 @@ apm.lock.yaml
 .claude/
 .mcp.json
 .codex/
+__pycache__/

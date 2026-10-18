@@ -1,9 +1,13 @@
 name: apm-shared
-version: "0.1.2"
+version: "0.1.3"
 description: Shared agent configuration reused across imk1t repositories.
 license: MIT
 includes:
   - .apm/skills/**
+targets:
+  - agent-skills
+  - claude
+  - codex
 dependencies:
   apm: []
   mcp:
