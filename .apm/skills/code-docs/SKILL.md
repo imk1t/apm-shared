@@ -1,70 +1,70 @@
 ---
 name: code-docs
-description: 関数・型・定数・moduleのドキュメントコメント（TSDoc/JSDoc、docstring等）を書く・直す。exportを追加・変更したとき、またはドキュメント整備を依頼されたときに使う。
-argument-hint: '[対象のファイル・ディレクトリ・シンボル（省略時は現在のdiff）]'
+description: Write or update documentation comments for functions, types, constants, and modules (TSDoc/JSDoc, docstrings, etc.). Use when adding or changing exports, or when asked to improve code documentation.
+argument-hint: '[file, directory, or symbol to document (defaults to the current diff)]'
 ---
 
-# ドキュメントコメントの記載
+# Writing Documentation Comments
 
-対象: `$ARGUMENTS`（指定がなければ、ベースブランチとの差分で追加・変更された宣言）
+Target: `$ARGUMENTS` (if omitted, declarations added or changed relative to the base branch)
 
-リポジトリの指示（`AGENTS.md`、`CLAUDE.md`、CONTRIBUTING、lint設定等）がコメントの言語・形式・タグを定めていれば、それをこのSkillより優先する。定めがなければ、周囲の既存コードの書き方（言語、長さ、`@param` 等のタグを使うか、文末の句点）に合わせる。このSkillの例より既存コードを優先する。
+Follow repository instructions (`AGENTS.md`, `CLAUDE.md`, CONTRIBUTING, lint configuration, etc.) if they specify the language, format, or tags for comments. Otherwise, match the style of nearby code (language, length, use of tags such as `@param`, and sentence punctuation). Existing code takes precedence over the examples in this Skill.
 
-## 対象を決める
+## Choose what to document
 
-1. 対象が指定されていなければ `git diff <base>...HEAD` と未コミット差分から、追加・シグネチャ変更・意味変更があった宣言を拾う
-2. 書く対象（優先順）:
-   - moduleの外から使われるexport（関数、class、型、定数）
-   - 名前と型だけでは前提・単位・失敗時の振る舞いが分からない内部関数
-   - 判断の余地がある型のfield（単位、省略時の既定、`null` の意味）
-   - 責務が名前から読めないmodule（ファイル先頭に1行）
-3. 書かない対象: 名前と型で意味が尽きる宣言（`isEmpty`、単純なgetter、型の別名）、テスト、生成物、ハッシュ等で固定されたファイル。コメントの数を目標にしない
+1. If no target is specified, use `git diff <base>...HEAD` and uncommitted changes to find declarations that were added, had their signatures changed, or had their behavior changed.
+2. Write comments for these, in priority order:
+   - Exports used from outside the module (functions, classes, types, constants)
+   - Internal functions whose assumptions, units, or failure behavior are unclear from their names and types
+   - Type fields with non-obvious semantics (units, defaults when omitted, or the meaning of `null`)
+   - Modules whose responsibility is not apparent from their name (one line at the top of the file)
+3. Do not document declarations whose names and types fully explain their meaning (such as `isEmpty`, simple getters, or type aliases), tests, generated files, or files with fixed hashes. Do not aim for a particular number of comments.
 
-## 書く内容
+## What to write
 
-コードを読めば分かる「何をしているか」の言い換えではなく、呼び出し側が知る必要があることを書く。
+Document what callers need to know, not a restatement of what the code does.
 
-- **何を返すか・何をするか**を1文で。動詞で始めるか、返り値を名詞で言う（例: 「`ms` 以下で最大の `step` の倍数。」）
-- **前提と契約**: 受け付ける入力の範囲、単位（ms、円、%）、時刻の基準（UTC、ローカル）、副作用（書込み、ネットワーク、`process.exitCode` の変更）
-- **失敗時の振る舞い**: 投げる例外、`null`/`undefined` を返す条件、失敗を握りつぶさないこと
-- **非自明な理由**: なぜその実装か、なぜ別の方法を取らないか（必要な場合だけ）
-- 引数は、名前と型で足りなければ本文中で `` `name` `` として触れる。リポジトリが `@param`/`@returns` を使っていればそれに合わせる
-- 例はシグネチャだけでは使い方が誤解されやすい場合にだけ `@example` か本文の短い例で添える
+- State **what the declaration returns or does** in one sentence. Start with a verb or describe the return value as a noun (for example, “The largest multiple of `step` that is less than or equal to `ms`.”).
+- **Preconditions and contract**: accepted input ranges, units (ms, yen, %), time basis (UTC, local), and side effects (writes, network access, changes to `process.exitCode`).
+- **Failure behavior**: exceptions thrown, conditions that return `null`/`undefined`, and whether failures are propagated rather than swallowed.
+- **Non-obvious rationale**: why this implementation is used, or why an alternative was not chosen (only when needed).
+- If a parameter’s name and type are not enough, refer to it in the body as `` `name` ``. Follow the repository’s convention if it uses `@param`/`@returns`.
+- Add an example with `@example` or a short inline example only when the signature alone could make usage easy to misunderstand.
 
-書かないもの:
+Do not include:
 
-- 型注釈と重複する型情報（TypeScriptで `{string}` を書く等）
-- 変更履歴、担当者、日付、チケット番号、「新しく追加」等の経緯（Git履歴とPRに置く）
-- 実装の手順を1行ずつ追う説明、TODOの放置
-- 実在しない振る舞いや将来の予定。コメントは現在のコードと一致させる
+- Type information already expressed by annotations (for example, `{string}` in TypeScript)
+- Change history, authors, dates, ticket numbers, or phrases such as “newly added” (put that context in Git history and the PR)
+- A line-by-line walkthrough of the implementation, or abandoned TODOs
+- Behavior that does not exist or plans for the future. Comments must match the current code.
 
-## 形式
+## Format
 
-- TypeScript/JavaScriptは宣言の直前に `/** ... */`。1文で収まれば1行、複数文なら複数行にする
-- 他言語はその言語の標準（Pythonのdocstring、Goの `// Name ...`、Rustの `///`）に従う
-- コード片・識別子・値はバッククォートで囲む
-- 同じファイル・moduleの中で言語と文体を揃える
+- For TypeScript/JavaScript, put `/** ... */` immediately before the declaration. Use one line when one sentence is enough; use multiple lines for multiple sentences.
+- For other languages, follow the language standard (Python docstrings, Go `// Name ...`, Rust `///`).
+- Wrap code snippets, identifiers, and values in backticks.
+- Keep the language and style consistent within each file or module.
 
 ```ts
-/** 一回で終わるCLIの入口。結果はstdoutへJSON 1つ、失敗はstderrへJSON 1つと非0の終了コード。 */
-
-/** `ms` 以下で最大の `step` の倍数。 */
+/** Returns the largest multiple of `step` not exceeding `ms`. Requires finite inputs and a positive `step`. */
 export function floorTo(ms: number, step: number): number {
+  return Math.floor(ms / step) * step;
+}
 
 export type Options = {
-  /** stdoutのJSONの字下げ。省くと1行。 */
+  /** Indentation for JSON written to stdout. Defaults to a single line. */
   indent?: number;
 };
 ```
 
-## 既存コメントを直すとき
+## Updating existing comments
 
-1. 振る舞いを変えたら、同じ変更で該当コメントを直す。古いコメントは無いより悪い
-2. 実装と矛盾するコメントは、実装とテストを確認してから実装に合わせて直す。実装が誤りに見えるときはコメントを変えず報告する
-3. 宣言を消したら、そのコメントと他所からの参照（`{@link}`、README）も消す
+1. When behavior changes, update the relevant comment in the same change. An outdated comment is worse than no comment.
+2. If a comment conflicts with the implementation, check the implementation and tests before updating the comment to match. If the implementation appears wrong, leave the comment unchanged and report the discrepancy.
+3. If a declaration is removed, remove its comment and references to it elsewhere (`{@link}`, README, etc.).
 
-## 確認
+## Verification
 
-1. 書いた各コメントを実装と照合し、記載した前提・単位・失敗時の振る舞いが実際のコードと一致することを確かめる
-2. リポジトリのlint・型検査・formatterを実行する（コメントのみの変更でもformatterの差分が出ることがある）
-3. 報告には、書いた・直した宣言の一覧と、意図的に書かなかった対象があればその理由を含める
+1. Compare every comment with the implementation. Confirm that its stated assumptions, units, and failure behavior match the code.
+2. Run the repository’s lint, type-check, and formatter. A formatter may produce changes even when only comments were edited.
+3. In your report, list the declarations documented or updated, and explain any intentionally undocumented targets.

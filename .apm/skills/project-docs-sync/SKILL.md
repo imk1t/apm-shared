@@ -1,32 +1,32 @@
 ---
 name: project-docs-sync
-description: 構成・開発コマンド・設定・役割・検証方法の変更や、コード・設定の移動・削除に合わせてREADMEと関連文書を同期する。文書の最新化を依頼されたときにも使う。宣言のドキュメントコメントはcode-docsが扱う。
+description: Keep the README and related documentation in sync with changes to structure, development commands, configuration, responsibilities, or verification methods, and with moved or deleted code or settings. Also use when asked to update documentation. Use code-docs for declaration-level documentation comments.
 ---
 
-# プロジェクト文書の同期
+# Keeping Project Documentation in Sync
 
-リポジトリの指示（`AGENTS.md`、`CLAUDE.md`、CONTRIBUTING等）と文書の管理方針を優先する。通常の構成変更に伴う更新は、そのタスク内で行う。
+Follow repository instructions (`AGENTS.md`, `CLAUDE.md`, CONTRIBUTING, etc.) and documentation ownership policies. Make routine updates required by structural changes as part of the task.
 
-## 更新範囲を決める
+## Determine what to update
 
-1. `git status --short`、対象diff、追跡ファイル、変更された実装・設定を読む。未コミットの変更は利用者の作業と今回の担当範囲を区別して扱う。
-2. 構成・起動方法・環境変数・設定・公開API・担当・検証方法のうち、何が変わったかを特定する。対象が指定されていなければ、現在の変更に影響する文書だけを対象にする。
-3. README、エージェント指示、仕様、各ディレクトリのREADMEなどから、各情報の正本を確認する。固定のディレクトリ構成や文書名を要求せず、既存の管理場所を使う。
+1. Read `git status --short`, the target diff, tracked files, and changed implementation and configuration. Distinguish the user’s uncommitted work from changes within the current task.
+2. Identify changes to structure, startup, environment variables, configuration, public APIs, ownership, or verification methods. If no target is specified, update only documents affected by the current changes.
+3. Find the source of truth for each piece of information in the README, agent instructions, specifications, and directory-level READMEs. Use the repository’s existing documentation locations; do not require a fixed directory structure or filenames.
 
-## 実装と文書を揃える
+## Keep documentation aligned with implementation
 
-- コマンド・引数・既定値・環境変数・必要なツールは、実際のscript、manifest、Makefile、CI、設定と照合する。文書やIDE設定側に処理を再実装しない。
-- 開発入口を変えた場合、利用側で管理しているIDEのtasks/launch設定やCIからの呼び出しも確認する。該当する設定がない場合は新設を目的にしない。
-- 追加・移動・改名・削除した名前、path、コマンド、アンカーを `rg` 等で検索し、参照元の説明・リンク・構成表を更新する。生成文書は正本を更新し、既存の生成手順で反映する。
-- 同じ契約を複数の文書へ複製せず、詳細の正本にリンクする。旧文書を削除するときは、現在も必要な契約を先に正本へ移す。履歴用コピーは既存の保存方針に従う。
-- 現worktreeで実装された内容、ローカル検証、未実装の計画を区別する。別branchの成果や過去の確認を、統合済みの実装・現在の外部状態として記載しない。
-- 文書の同期を理由に仕様や権限を変えない。実装と仕様のどちらが正しいか判断できない相違は、その根拠とともに報告する。
+- Compare commands, arguments, defaults, environment variables, and required tools with the actual scripts, manifests, Makefiles, CI, and configuration. Do not reimplement behavior in documentation or IDE settings.
+- When a development entry point changes, also check consumer-managed IDE task/launch settings and CI invocations. Do not add new settings when none currently exist just to satisfy this check.
+- Search with `rg` or a similar tool for names, paths, commands, and anchors that were added, moved, renamed, or removed. Update references, links, and structure tables. For generated documentation, update the source of truth and use the existing generation process.
+- Do not duplicate the same contract across multiple documents; link to the authoritative detailed source. Before deleting an old document, move any still-needed contract to its source of truth. Follow existing retention policies for archival copies.
+- Distinguish what is implemented in the current worktree, what was verified locally, and what is planned but not implemented. Do not describe work from another branch or a past check as merged implementation or current external state.
+- Do not change specifications or permissions as part of documentation sync. If it is unclear whether the implementation or specification is correct, report the discrepancy with its supporting evidence.
 
-## 検証と報告
+## Verification and reporting
 
-1. 変更した記述を実ファイル・コマンド定義と照合し、ローカル相対リンクとアンカーの存在を確認する。
-2. `git diff --check` と、利用側で指定された文書のlint・formatter・生成検査を実行する。文書だけの変更にアプリ全試験を追加せず、実行用scriptや設定も変えた場合は対応する検証を行う。
-3. APMのSkillや設定を変えた場合は、利用側の固定版・更新手順に従って生成物とlockを更新し、既存のAPM検証を通す。展開先やlockのhashを直接書き換えない。
-4. 更新した文書、実行した検証、未実施の理由、残る不整合を報告する。
+1. Compare changed statements with the actual files and command definitions. Confirm that local relative links and anchors exist.
+2. Run `git diff --check` and any documentation lint, formatter, or generation checks required by the consumer. Do not add a full application test run for documentation-only edits; run relevant checks if execution scripts or configuration also changed.
+3. If an APM Skill or configuration changes, update generated artifacts and lockfiles using the consumer’s pinned version and update process, then run the existing APM checks. Do not directly edit deployed copies or lock hashes.
+4. Report the documents updated, checks run, checks not run and why, and any remaining inconsistencies.
 
-外部状態の照会・更新、配備、公開、監視の登録は、文書同期に必要だと推測して追加しない。外部確認が今回の依頼に含まれる場合は、その認可とリポジトリの運用手順に従う。
+Do not add external state lookups or updates, deployments, publishing, or monitor registrations based on an assumption that documentation sync requires them. If external verification is part of the request, follow its authorization and the repository’s operational procedures.
