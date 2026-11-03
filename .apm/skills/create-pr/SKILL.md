@@ -1,71 +1,76 @@
 ---
 name: create-pr
-description: PR を作成する。変更のコミット後に使用する。
+description: Create a pull request. Use after committing the changes.
 disable-model-invocation: true
-argument-hint: '[base-branch (default: main)]'
+argument-hint: '[base branch (defaults to main)]'
 ---
 
-# Pull Request 作成
+# Creating a Pull Request
 
-ベースブランチ: `$ARGUMENTS` (指定がなければ `main`)
+Base branch: `$ARGUMENTS` (defaults to `main` if omitted)
 
-リポジトリの指示（`AGENTS.md`、`CLAUDE.md`、CONTRIBUTING等）がブランチ名、タイトル、本文、レビュー手順を定めていれば、それをこのSkillより優先する。
+Follow repository instructions (`AGENTS.md`, `CLAUDE.md`, CONTRIBUTING, etc.) if they define branch naming, title, body, or review procedures.
 
-## 手順
+## Procedure
 
-### 0. レビューAgent確認
+### 0. Check for a review agent
 
-1. リポジトリの指示とReview Agent定義を確認し、変更内容に対応するReview AgentがあればPR作成前に起動する
-2. Review Agentがなければ、その理由を作成報告に記録する
-3. findingsはPR作成前に解消またはPR本文へ明記する
+1. Check repository instructions and Review Agent definitions. If an agent covering the changes exists, run it before creating the PR.
+2. If no Review Agent exists, note why in the creation report.
+3. Resolve findings before creating the PR, or document them in the PR body.
 
-### 1. ブランチ確認
+### 1. Check the branch
 
-1. `git branch --show-current` で現在のブランチ名と依頼scopeを確認する
-2. 既存sessionでブランチとscopeが判断できる場合は、その文脈を使って続行する。承認済み内容を再質問しない
-3. ブランチが未作成、scopeと既存ブランチが矛盾、または対象が曖昧な場合だけ、リポジトリの命名規則（指定がなければ `<type>/<scope>/<説明>`）に沿う名前を提案して確認する
+1. Run `git branch --show-current` and check that the current branch matches the requested scope.
+2. If the existing session provides enough context to determine the branch and scope, use it and continue. Do not ask again about already-approved information.
+3. Only if the branch does not exist, conflicts with the scope, or the target is ambiguous, propose a name following the repository’s naming convention (or `<type>/<scope>/<description>` if none is specified) and ask for confirmation.
 
-### 2. 事前確認
+### 2. Preflight checks
 
-以下を並列で実行する:
+Run these in parallel:
 
-- `git status` で未コミットの変更と対象diffを確認する。依頼scope内の変更は通常のPR作成作業として続行し、無関係差分または対象曖昧時だけ確認する
-- `git log --oneline <base-branch>...HEAD` でベースブランチからの全コミットを確認する
-- `git diff <base-branch>...HEAD` でベースブランチからの全差分を確認する
+- Check uncommitted changes with `git status` and inspect both staged and unstaged diffs to identify changes within the requested scope.
+- Review all commits since the base branch with `git log --oneline <base-branch>...HEAD`.
+- Review all changes since the base branch with `git diff <base-branch>...HEAD`.
 
-### 3. PR タイトル・本文の生成
+Then complete these steps in order:
 
-リポジトリにPRテンプレートがあれば使用する。対応する実在Issueがある場合だけ、本文の関連Issue欄に Closes #<id> を記載する。
+1. If intended PR changes are uncommitted, stage only those changes, review the staged diff, and commit them following repository conventions. Preserve unrelated changes; ask only if it is unclear whether a change belongs in the PR.
+2. Recheck `git status`, the commits, and the diff against the base branch after committing. Confirm that all intended PR changes are committed before generating the final title and body.
 
-全コミットと差分を分析し、以下を生成する:
+### 3. Generate the PR title and body
 
-**タイトル**:
+Use the repository’s PR template if one exists. Include `Closes #<id>` in a related-issue section only when there is a matching, existing issue.
 
-- 70文字以内
-- Conventional Commits 形式: `<type>(<scope>): <説明>`（説明の言語はリポジトリの規約に従う）
-- type/scope はブランチ名とコミットから推測する
+Analyze all commits and the full diff to generate the following:
 
-**本文**（テンプレートがない場合）:
+**Title**:
+
+- 70 characters or fewer
+- Use Conventional Commits format: `<type>(<scope>): <description>`; follow repository conventions for the description language.
+- Infer the type and scope from the branch name and commits.
+
+**Body** (when there is no template):
 
 ```markdown
-## 概要
+## Summary
 
-<!-- 変更内容を箇条書きで1-3点 -->
+<!-- Describe 1–3 key changes in bullets. -->
 
-## テスト計画
+## Test plan
 
-<!-- 実行した検証と未実行の検証 -->
+<!-- List checks that were run and checks that were not run. -->
 ```
 
-### 4. PR 作成
+### 4. Create the PR
 
-以下を順番に実行する:
+Run these steps in order:
 
-1. リモートへ push する (`git push -u origin <current-branch>`)
-2. `gh pr create` で PR を作成する。本文は一時ファイルを `--body-file` で渡す。`gh` が使えない環境ではGitHub MCP等の同等の手段を使う:
+1. Push the branch to the remote (`git push -u origin <current-branch>`).
+2. Create the PR with `gh pr create`, explicitly passing the selected base branch with `--base`. Pass the body through a temporary file using `--body-file`. If `gh` is unavailable, use an equivalent method such as GitHub MCP with the same base branch:
 
 ```bash
-gh pr create --title "<タイトル>" --body-file <body-file>
+gh pr create --base "<base-branch>" --title "<title>" --body-file <body-file>
 ```
 
-3. 作成された PR の URL を表示する
+3. Show the created PR’s URL.
